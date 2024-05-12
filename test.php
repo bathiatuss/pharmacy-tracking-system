@@ -97,11 +97,20 @@
         }
 
         .card {
-            width: calc(25% - 10px);/* -50px ekranda 4 sütun oluşturur. */
+            width: calc(25% - 10px); /* -50px ekranda 4 sütun oluşturur. */
             background-color: #f0f0f0;
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 20px;
+            position: relative; /* İkonu yerleştirmek için */
+        }
+
+        .card .location-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #007bff;
+            cursor: pointer;
         }
 
         .card img {
@@ -114,8 +123,51 @@
         }
 
         .card p {
-            margin-bottom: 0;
+            margin-bottom: 8px;
+            overflow: hidden; /* Paragraf içeriğini gizle */
+            text-overflow: ellipsis; /* Uzun içerikleri kısalt */
+            white-space: nowrap; /* Uzun satırları kısalt */
         }
+
+/* modal */
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 500px;
+    height: 300px;
+    position: relative; /* Modal content'in konumunu ayarlamak için */
+}
+
+.close {
+    color: #aaa;
+    position: absolute;
+    top: 0px;
+    right: 6px;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
     </style>
 </head>
 <body>
@@ -134,6 +186,14 @@
 
         <div class="card-container" id="cardContainer">
             <!-- Cardlar burada dinamik olarak oluşturulacak -->
+        </div>
+
+            <!-- Harita modalı -->
+        <div id="mapModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeMapModal()">&times;</span>
+                <iframe id="mapFrame" src="" width="500" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
         </div>
 
     </div>
@@ -178,28 +238,43 @@ document.addEventListener('DOMContentLoaded', function () {
         renderCards(filteredData);
     }
 
-// Kartları oluşturma işlevi
-function renderCards(data) {
-    cardContainer.innerHTML = ''; // Önceki kartları temizle
-    if (!data || data.length === 0) {
-        cardContainer.innerHTML = '<p>Aradığınız kriterlere uygun veri bulunamadı.</p>';
-        return;
+    // Kartları oluşturma işlevi
+    function renderCards(data) {
+        cardContainer.innerHTML = ''; // Önceki kartları temizle
+        if (!data || data.length === 0) {
+            cardContainer.innerHTML = '<p>Aradığınız kriterlere uygun veri bulunamadı.</p>';
+            return;
+        }
+        data.forEach(item => {
+            const card = document.createElement('div');
+            card.classList.add('card');
+            card.innerHTML = `
+                <img src="${item.GorselPath}">
+                <h3>${(activeTab === 'pharmacies' && item.EczaneAdi) ? item.EczaneAdi : ((activeTab === 'medicines' && item.IlacAdi) ? item.IlacAdi : 'Bilgi Yok')}</h3>
+                <p><strong>${(activeTab === 'pharmacies') ? 'Şehir:' : 'Eczane:'}</strong> ${(activeTab === 'pharmacies' && item.Sehir) ? item.Sehir : ((activeTab === 'medicines' && item.EczaneID) ? item.EczaneID : 'Bilgi Yok')}</p>
+                ${(activeTab === 'pharmacies' || activeTab === 'medicines') ? `<button onclick="openMapModal('https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3028.424192629086!2d33.6142682!3d40.6205262!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4083c3bd563350ad%3A0x73f667417752a1d0!2sM%C3%BChendislik%20Fak%C3%BCltesi!5e0!3m2!1str!2str!4v1715528857848!5m2!1str!2str')">Göster</button>` : ''}
+                ${(activeTab === 'pharmacies') ? `<p><strong>İlçe:</strong> ${(item.Ilce) ? item.Ilce : 'Bilgi Yok'}</p>` : ''}
+                <p><strong>${(activeTab === 'pharmacies') ? 'Açıklama:' : 'TETT:'}</strong> ${(activeTab === 'pharmacies' && item.Aciklama) ? item.Aciklama : ((activeTab === 'medicines' && item.TETT) ? item.TETT : 'Bilgi Yok')}</p>
+                ${(activeTab === 'medicines' && item.ESTASKod) ? `<p><strong>ESTAS Kod:</strong> ${item.ESTASKod}</p>` : ''}
+            `;
+            cardContainer.appendChild(card);
+        });
     }
-    data.forEach(item => {
-        const card = document.createElement('div');
-        card.classList.add('card');
-        card.innerHTML = `
-            <img src="${item.GorselPath}">
-            <h3>${(activeTab === 'pharmacies' && item.EczaneAdi) ? item.EczaneAdi : ((activeTab === 'medicines' && item.IlacAdi) ? item.IlacAdi : 'Bilgi Yok')}</h3>
-            <p><strong>${(activeTab === 'pharmacies') ? 'Şehir:' : 'Eczane:'}</strong> ${(activeTab === 'pharmacies' && item.Sehir) ? item.Sehir : ((activeTab === 'medicines' && item.EczaneID) ? item.EczaneID : 'Bilgi Yok')}</p>
-            <p><strong>${(activeTab === 'pharmacies') ? 'İlçe:' : 'Fiyat:'}</strong> ${(activeTab === 'pharmacies' && item.Ilce) ? item.Ilce : ((activeTab === 'medicines' && item.Fiyat) ? '₺' + item.Fiyat : 'Bilgi Yok')}</p>
-            <p><strong>${(activeTab === 'pharmacies') ? 'Açıklama:' : 'TETT:'}</strong> ${(activeTab === 'pharmacies' && item.Aciklama) ? item.Aciklama : ((activeTab === 'medicines' && item.TETT) ? item.TETT : 'Bilgi Yok')}</p>
-            ${(activeTab === 'medicines' && item.ESTASKod) ? `<p><strong>ESTAS Kod:</strong> ${item.ESTASKod}</p>` : ''}
-        `;
-        cardContainer.appendChild(card);
-    });
-}
 
+
+        // Harita modalını aç
+        window.openMapModal = function (mapUrl) {
+            var modal = document.getElementById('mapModal');
+            var mapFrame = document.getElementById('mapFrame');
+            mapFrame.src = mapUrl;
+            modal.style.display = "block";
+        };
+
+        // Harita modalını kapat
+        window.closeMapModal = function () {
+            var modal = document.getElementById('mapModal');
+            modal.style.display = "none";
+        };
 
     // Arama butonuna tıklama işlevi ekle
     if (searchInput) {
