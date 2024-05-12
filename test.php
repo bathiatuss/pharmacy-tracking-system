@@ -124,16 +124,16 @@
             white-space: nowrap; /* Uzun satırları kısalt */
         }
 
-.card p strong {
-    display: inline-block;
-    width: 80px; /* İhtiyaca göre ayarlayabilirsiniz */
-    font-weight: bold;
-}
+        .card p strong {
+            display: inline-block;
+            width: 80px; /* İhtiyaca göre ayarlayabilirsiniz */
+            font-weight: bold;
+        }
 
-.location-icon {
-    display: inline-block;
-    margin-left: 10px; /* İhtiyaca göre ayarlayabilirsiniz */
-}
+        .location-icon {
+            display: inline-block;
+            margin-left: 10px; /* İhtiyaca göre ayarlayabilirsiniz */
+        }
 
 
         /* modal */
@@ -155,6 +155,7 @@
             margin: 15% auto;
             padding: 20px;
             border: 1px solid #888;
+            border-radius: 4px;
             width: 500px;
             height: 300px;
             position: relative; /* Modal content'in konumunu ayarlamak için */
@@ -222,6 +223,9 @@ document.addEventListener('DOMContentLoaded', function () {
             search();
         });
     });
+
+    // İlk yüklendiğinde eczaneleri göster
+    search();
 
     // Arama işlevi
     function search() {
