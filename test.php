@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ESTAS</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
     <style>
         /* Header */
         .header {
@@ -97,20 +100,12 @@
         }
 
         .card {
-            width: calc(25% - 10px); /* -50px ekranda 4 sütun oluşturur. */
+            width: calc(25% - 10px); /* -50px ekranda 4 sütun oluşturur */
             background-color: #f0f0f0;
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 20px;
             position: relative; /* İkonu yerleştirmek için */
-        }
-
-        .card .location-icon {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            color: #007bff;
-            cursor: pointer;
         }
 
         .card img {
@@ -129,45 +124,57 @@
             white-space: nowrap; /* Uzun satırları kısalt */
         }
 
-/* modal */
-
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0,0,0,0.5);
-}
-
-.modal-content {
-    background-color: #fefefe;
-    margin: 15% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 500px;
-    height: 300px;
-    position: relative; /* Modal content'in konumunu ayarlamak için */
-}
-
-.close {
-    color: #aaa;
-    position: absolute;
-    top: 0px;
-    right: 6px;
-    font-size: 22px;
+.card p strong {
+    display: inline-block;
+    width: 80px; /* İhtiyaca göre ayarlayabilirsiniz */
     font-weight: bold;
 }
 
-.close:hover,
-.close:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
+.location-icon {
+    display: inline-block;
+    margin-left: 10px; /* İhtiyaca göre ayarlayabilirsiniz */
 }
+
+
+        /* modal */
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 500px;
+            height: 300px;
+            position: relative; /* Modal content'in konumunu ayarlamak için */
+        }
+
+        .close {
+            color: #aaa;
+            position: absolute;
+            top: 0px;
+            right: 6px;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -252,10 +259,10 @@ function renderCards(data) {
             <img src="${item.GorselPath}">
             <h3>${(activeTab === 'pharmacies' && item.EczaneAdi) ? item.EczaneAdi : ((activeTab === 'medicines' && item.IlacAdi) ? item.IlacAdi : 'Bilgi Yok')}</h3>
             <p><strong>${(activeTab === 'pharmacies') ? 'Şehir:' : 'Eczane:'}</strong> ${(activeTab === 'pharmacies' && item.Sehir) ? item.Sehir : ((activeTab === 'medicines' && item.EczaneID) ? item.EczaneID : 'Bilgi Yok')}</p>
-            ${(activeTab === 'pharmacies' || activeTab === 'medicines') ? `<button onclick="openMapModal('${item.gm_url}')">Göster</button>` : ''}
             ${(activeTab === 'pharmacies') ? `<p><strong>İlçe:</strong> ${(item.Ilce) ? item.Ilce : 'Bilgi Yok'}</p>` : ''}
+            ${(activeTab === 'pharmacies' || activeTab === 'medicines') ? `<div class="location-icon" onclick="openMapModal('${item.gm_url}')"><i class="fas fa-map-marker-alt"></i></div>` : ''}
             <p><strong>${(activeTab === 'pharmacies') ? 'Açıklama:' : 'TETT:'}</strong> ${(activeTab === 'pharmacies' && item.Aciklama) ? item.Aciklama : ((activeTab === 'medicines' && item.TETT) ? item.TETT : 'Bilgi Yok')}</p>
-            ${(activeTab === 'medicines' && item.ESTASKod) ? `<p><strong>ESTAS Kod:</strong> ${item.ESTASKod}</p>` : ''}
+            ${(activeTab === 'medicines' && item.ESTASKod) ? `<p><strong>ESTAS Kod: </strong> ${item.ESTASKod}</p>` : ''}
         `;
         cardContainer.appendChild(card);
     });
