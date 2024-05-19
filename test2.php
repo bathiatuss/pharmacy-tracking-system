@@ -210,7 +210,8 @@
             margin-left: 10px; /* İhtiyaca göre ayarlayabilirsiniz */
         }
 
-        /* modal */
+ 
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -231,7 +232,79 @@
             border-radius: 4px;
             width: 500px;
             height: 300px;
-            position: relative; /* Modal content'in konumunu ayarlamak için */
+            position: relative;
+        }
+
+        .close {
+            color: #aaa;
+            position: absolute;
+            top: 0px;
+            right: 6px;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .login-register {
+            display: flex;
+            align-items: center;
+        }
+
+        .login-register button {
+            margin-left: 10px;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .login-register button:hover {
+            background-color: #0056b3;
+        }
+
+        .tablinks {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .tablinks.active {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .tabcontent {
+            display: none;
+        }
+
+        .tabcontent.active {
+            display: block;
+        }
+
+        .user-type-button {
+            width: 48%;
+            margin: 1%;
+            padding: 10px;
+            border: 1px solid #007bff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .user-type-button:hover {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .user-type-container {
+            display: flex;
+            justify-content: center;
         }
 
         .close {
@@ -273,19 +346,18 @@
 </head>
 <body>
 
-    <div class="header">
+<div class="header">
         <div class="logo">ESTAS</div>
         <div class="search-bar">
             <input type="text" id="searchInput" placeholder="Eczane/İlaç Ara...">
-            <span class="close" onclick="clearButtonHandler()">Temizle</span>
         </div>
         <div class="tabs">
             <div class="tab active" data-tab="pharmacies">Eczaneler</div>
             <div class="tab" data-tab="medicines">İlaçlar</div>
             <div class="tab" data-tab="workInProgress">Work in Progress</div>
         </div>
-        <div class="login-register" >
-            <span class="login-button" onclick="openForm()">Login</span>
+        <div class="login-register">
+            <span class="login-button" onclick="openLoginRegisterModal('login')">Login</span>
         </div>
     </div>
 
@@ -305,123 +377,151 @@
         </div>
     </div>
 
-        <!-- Login/Register Modal -->
+    <!-- Login/Register Modal -->
     <div id="loginRegisterModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('loginRegisterModal')">&times;</span>
-            <h2>Login/Register</h2>
-            <div class="tab">
-                <button class="tablinks active" onclick="openForm(event, 'loginForm')">Login</button>
-                <button class="tablinks" onclick="openForm(event, 'registerForm')">Register</button>
-            </div>
             <!-- Login Form -->
-            <form id="loginForm" class="tabcontent" style="display: block;">
+            <form id="loginForm" class="tabcontent active">
                 <input type="text" id="loginEmail" placeholder="Email" required>
                 <input type="password" id="loginPassword" placeholder="Password" required>
                 <button type="submit">Login</button>
+            <a onclick="openForm(event, 'registerForm')">Hala kayıt olmadın mı?</a>
+                
             </form>
             <!-- Register Form -->
-            <form id="registerForm" class="tabcontent">
-                <input type="text" id="registerName" placeholder="Name" required>
-                <input type="text" id="registerEmail" placeholder="Email" required>
-                <input type="password" id="registerPassword" placeholder="Password" required>
-                <input type="password" id="registerConfirmPassword" placeholder="Confirm Password" required>
-                <button type="submit">Register</button>
-            </form>
+            <div id="registerForm" class="tabcontent">
+                <div class="user-type-container">
+                    <button class="user-type-button" onclick="openRegisterForm('individual')">Individual</button>
+                    <button class="user-type-button" onclick="openRegisterForm('company')">Company</button>
+                </div>
+                <form id="registerIndividualForm" class="registerFormType">
+                    <input type="text" id="registerIndividualName" placeholder="Name" required>
+                    <input type="email" id="registerIndividualEmail" placeholder="Email" required>
+                    <input type="password" id="registerIndividualPassword" placeholder="Password" required>
+                    <input type="password" id="registerIndividualConfirmPassword" placeholder="Confirm Password" required>
+                    <button type="submit">Register</button>
+                </form>
+                <form id="registerCompanyForm" class="registerFormType">
+                    <input type="text" id="registerCompanyName" placeholder="Company Name" required>
+                    <input type="email" id="registerCompanyEmail" placeholder="Company Email" required>
+                    <input type="password" id="registerCompanyPassword" placeholder="Password" required>
+                    <input type="password" id="registerCompanyConfirmPassword" placeholder="Confirm Password" required>
+                    <input type="text" id="registerCompanyAddress" placeholder="Address" required>
+                    <button type="submit">Register</button>
+                </form>
+            <a onclick="openForm(event, 'loginForm')">Giriş Yap</a>
+            </div>
         </div>
+
     </div>
 
-
     <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const searchInput = document.getElementById('searchInput');
-    const tabs = document.querySelectorAll('.tab');
-    const cardContainer = document.getElementById('cardContainer');
-    let activeTab = 'pharmacies'; // Varsayılan olarak eczaneler sekmesi seçili
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('searchInput');
+            const tabs = document.querySelectorAll('.tab');
+            const cardContainer = document.getElementById('cardContainer');
+            let activeTab = 'pharmacies';
 
-    // Tab değiştirme işlevi
-    tabs.forEach(tab => {
-        tab.addEventListener('click', function () {
-            tabs.forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-            activeTab = this.getAttribute('data-tab');
-            // Arama yap
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function () {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    activeTab = this.getAttribute('data-tab');
+                    search();
+                });
+            });
+
             search();
-        });
-    });
-
-    // İlk yüklendiğinde eczaneleri göster
-    search();
-
-    // Arama işlevi
-    function search() {
-        const searchTerm = searchInput.value.trim().toLowerCase();
-        const data = (activeTab === 'pharmacies') ? pharmacyData : medicineData;
-
-        // Arama işlemi için gerekli verilerin varlığını kontrol et
-        if (!searchInput || !data) return;
-
-        // Arama terimine göre filtreleme yap
-        const filteredData = data.filter(item => {
-            // Verinin varlığını kontrol et
-            if (activeTab === 'pharmacies' && item.EczaneAdi) {
-                return item.EczaneAdi.toLowerCase().includes(searchTerm);
-            } else if (activeTab === 'medicines' && item.IlacAdi) {
-                return item.IlacAdi.toLowerCase().includes(searchTerm);
-            }
-        });
-
-        // Kartları oluştur ve ekrana yazdır
-        renderCards(filteredData);
-    }
-
-    function clearButtonHandler() {
-        searchInput.value = "";
-        search();
-    }
-
-    // Kartları oluşturma işlevi
-    function renderCards(data) {
-        cardContainer.innerHTML = ''; // Önceki kartları temizle
-        if (!data || data.length === 0) {
-            cardContainer.innerHTML = '<div class="data-not-found"><p>Aradığınız kriterlere uygun veri bulunamadı.</p></div>';
-            return;
-        }
-        data.forEach(item => {
-            const card = document.createElement('div');
-            card.classList.add('card');
-            card.innerHTML = `
-                <img src="${item.GorselPath}">
-                <h3>${(activeTab === 'pharmacies' && item.EczaneAdi) ? item.EczaneAdi : ((activeTab === 'medicines' && item.IlacAdi) ? item.IlacAdi : 'Bilgi Yok')}</h3>
-                <p><strong>${(activeTab === 'pharmacies') ? 'Şehir:' : 'Eczane:'}</strong> ${(activeTab === 'pharmacies' && item.Sehir) ? item.Sehir : ((activeTab === 'medicines' && item.EczaneAdi) ? item.EczaneAdi : 'Bilgi Yok')}</p>
-                <p><strong>${(activeTab === 'pharmacies') ? 'Adres:' : 'Barkod:'}</strong> ${(activeTab === 'pharmacies' && item.Adres) ? item.Adres : ((activeTab === 'medicines' && item.Barkod) ? item.Barkod : 'Bilgi Yok')}</p>
-                ${(activeTab === 'pharmacies') ? `<p><strong>Tel:</strong> ${item.Tel || 'Bilgi Yok'}</p>` : ''}
-                ${(activeTab === 'pharmacies' || activeTab === 'medicines') ? `<div class="location-icon" onclick="openMapModal('${item.gm_url}')"><i class="fas fa-map-marker-alt"></i></div>` : ''}
-                <p><strong>${(activeTab === 'pharmacies') ? 'Açıklama:' : 'TETT:'}</strong> ${(activeTab === 'pharmacies' && item.Aciklama) ? item.Aciklama : ((activeTab === 'medicines' && item.TETT) ? item.TETT : 'Bilgi Yok')}</p>
-                ${(activeTab === 'medicines' && item.ESTASKod) ? `<p><strong>ESTAS Kod: </strong> ${item.ESTASKod}</p>` : ''}
-            `;
-            cardContainer.appendChild(card);
-        });
-    }
-
-    // Harita modalını aç
-    window.openMapModal = function (mapUrl) {
-        var modal = document.getElementById('mapModal');
-        var mapFrame = document.getElementById('mapFrame');
-        mapFrame.src = mapUrl;
-        modal.style.display = "block";
-    };
-
-    // Harita modalını kapat
-    window.closeMapModal = function () {
-        var modal = document.getElementById('mapModal');
-        modal.style.display = "none";
-    };
-
-    // Arama inputuna dinleme işlevi ekle
-    if (searchInput) {
+                            // Arama inputuna dinleme işlevi ekle
+                            if (searchInput) {
         searchInput.addEventListener('input', search);
     }
+
+            function search() {
+                const searchTerm = searchInput.value.trim().toLowerCase();
+                const data = (activeTab === 'pharmacies') ? pharmacyData : medicineData;
+                if (!searchInput || !data) return;
+
+                const filteredData = data.filter(item => {
+                    if (activeTab === 'pharmacies' && item.EczaneAdi) {
+                        return item.EczaneAdi.toLowerCase().includes(searchTerm);
+                    } else if (activeTab === 'medicines' && item.IlacAdi) {
+                        return item.IlacAdi.toLowerCase().includes(searchTerm);
+                    }
+                });
+
+                renderCards(filteredData);
+            }
+
+            function clearButtonHandler() {
+                searchInput.value = "";
+                search();
+            }
+
+            function renderCards(data) {
+                cardContainer.innerHTML = '';
+                if (!data || data.length === 0) {
+                    cardContainer.innerHTML = '<div class="data-not-found"><p>Aradığınız kriterlere uygun veri bulunamadı.</p></div>';
+                    return;
+                }
+                data.forEach(item => {
+                    const card = document.createElement('div');
+                    card.classList.add('card');
+                    card.innerHTML = `
+                        <a style="text-decoration: none;" href="card_page.php"><img src="${item.GorselPath}"></a>
+                        <h3>${(activeTab === 'pharmacies' && item.EczaneAdi) ? item.EczaneAdi : ((activeTab === 'medicines' && item.IlacAdi) ? item.IlacAdi : 'Bilgi Yok')}</h3>
+                        <p><strong>${(activeTab === 'pharmacies') ? 'Şehir:' : 'Eczane:'}</strong> ${(activeTab === 'pharmacies' && item.Sehir) ? item.Sehir : ((activeTab === 'medicines' && item.EczaneAdi) ? item.EczaneAdi : 'Bilgi Yok')}</p>
+                        <p><strong>${(activeTab === 'pharmacies') ? 'Adres:' : 'Barkod:'}</strong> ${(activeTab === 'pharmacies' && item.Adres) ? item.Adres : ((activeTab === 'medicines' && item.Barkod) ? item.Barkod : 'Bilgi Yok')}</p>
+                        ${(activeTab === 'pharmacies') ? `<p><strong>Telefon:</strong> ${item.TelNo || 'Bilgi Yok'}</p>` : ''}
+                        ${(activeTab === 'pharmacies') ? `<button style=" z-index: 1;" onclick="openMapModal('${item.Adres}')">Haritada Göster</button>` : ''}
+                    `;
+                    cardContainer.appendChild(card);
+                });
+            }
+            
+        });
+
+        function openMapModal(address) {
+            const mapModal = document.getElementById('mapModal');
+            const mapFrame = document.getElementById('mapFrame');
+            mapFrame.src = `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
+            mapModal.style.display = 'block';
+        }
+
+        function closeMapModal() {
+            const mapModal = document.getElementById('mapModal');
+            const mapFrame = document.getElementById('mapFrame');
+            mapModal.style.display = 'none';
+            mapFrame.src = '';
+        }
+
+        function openLoginRegisterModal(type) {
+            const modal = document.getElementById('loginRegisterModal');
+            modal.style.display = 'block';
+            document.getElementById('modalTitle').textContent = type.charAt(0).toUpperCase() + type.slice(1);
+            if (type === 'login') {
+                openForm(null, 'loginForm');
+            } else {
+                openForm(null, 'registerForm');
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.style.display = 'none';
+        }
+
+        function openForm(event, formId) {
+            const tablinks = document.querySelectorAll('.tablinks');
+            const tabcontents = document.querySelectorAll('.tabcontent');
+
+            tablinks.forEach(tab => tab.classList.remove('active'));
+            tabcontents.forEach(tab => tab.classList.remove('active'));
+
+            if (event) event.currentTarget.classList.add('active');
+            document.getElementById(formId).classList.add('active');
+        }
 
     // Sayfa yüklendiğinde ve kullanıcı aşağı kaydırdığında yukarı okun görünürlüğünü kontrol et
     window.addEventListener('scroll', function () {
@@ -439,26 +539,16 @@ document.addEventListener('DOMContentLoaded', function () {
         document.documentElement.scrollTop = 0; // Diğer tarayıcılar için
     });
 
-    // Login butonuna tıklanınca modalı aç
-    document.querySelector('.login-register button:nth-child(1)').addEventListener('click', function () {
-        var modal = document.getElementById('loginRegisterModal');
-        modal.style.display = "block";
-    });
+        function openRegisterForm(type) {
+            const forms = document.querySelectorAll('.registerFormType');
+            forms.forEach(form => form.style.display = 'none');
 
-        // Login/Register Modalı kapat
-    window.closeLoginRegisterModal = function () {
-        var modal = document.getElementById('loginRegisterModal');
-        modal.style.display = "none";
-    };
-
-    // Attach event listener to the close button inside the login/register modal
-    document.getElementById('loginRegisterModal').querySelector('.close').addEventListener('click', function () {
-        closeLoginRegisterModal();
-    });
-
-
-});
-
+            if (type === 'individual') {
+                document.getElementById('registerIndividualForm').style.display = 'block';
+            } else {
+                document.getElementById('registerCompanyForm').style.display = 'block';
+            }
+        }
     </script>
 
     <?php
