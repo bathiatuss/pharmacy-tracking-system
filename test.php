@@ -119,7 +119,6 @@
 
         .card p {
             margin-bottom: 8px;
-            overflow: hidden; /* Paragraf içeriğini gizle */
             text-overflow: ellipsis; /* Uzun içerikleri kısalt */
             white-space: nowrap; /* Uzun satırları kısalt */
         }
